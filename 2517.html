@@ -246,6 +246,13 @@
             font-size: 0.9rem;
         }
         
+        .empty-message {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            font-style: italic;
+        }
+        
         /* 页脚 */
         footer {
             background-color: #1e5799;
@@ -304,7 +311,7 @@
                 <ul style="padding-left: 20px;">
                     <li style="margin-bottom: 8px;">2025学年校级文明班级</li>
                     <li style="margin-bottom: 8px;">2025年秋季运动会团体总分第二名</li>
-                    <li style="margin-bottom: 8px;"> </li>
+                    <li style="margin-bottom: 8px;">2025年校园文化艺术节优秀组织奖</li>
                 </ul>
             </div>
             
@@ -335,18 +342,18 @@
             <ul class="announcement-list">
                 <li class="announcement-item">
                     <div class="announcement-title">关于期中考试安排的通知</div>
-                    <div class="announcement-date">2023年10月15日</div>
-                    <p>期中考试将于11月x日进行，请同学们合理安排复习时间，做好充分准备。</p>
+                    <div class="announcement-date">2025年10月15日</div>
+                    <p>期中考试将于11月5日-7日进行，请同学们合理安排复习时间，做好充分准备。</p>
                 </li>
                 <li class="announcement-item">
                     <div class="announcement-title">班级团建活动通知</div>
-                    <div class="announcement-date">2023年10月10日</div>
-                    <p>本周末不将组织班级团建活动，地点为市郊生态园，请同学们不准时参加。</p>
+                    <div class="announcement-date">2025年10月10日</div>
+                    <p>本周末将组织班级团建活动，地点为市郊生态园，请同学们准时参加。</p>
                 </li>
                 <li class="announcement-item">
                     <div class="announcement-title">家长会通知</div>
-                    <div class="announcement-date">2023年10月5日</div>
-                    <p>本学期家长会定于期中考後学校举行，请各位家长准时参加。</p>
+                    <div class="announcement-date">2025年10月5日</div>
+                    <p>本学期家长会定于期中考后在学校举行，请各位家长准时参加。</p>
                 </li>
             </ul>
         </section>
@@ -381,20 +388,7 @@
             
             <h3 style="color: #1e5799; margin: 30px 0 15px;">留言列表</h3>
             <ul id="message-list" class="message-list">
-                <li class="message-item">
-                    <div class="message-header">
-                        <span class="message-author">陳老师</span>
-                        <span class="message-date">2023-10-12</span>
-                    </div>
-                    <div class="message-content">同学们最近学习状态很好，继续保持！</div>
-                </li>
-                <li class="message-item">
-                    <div class="message-header">
-                        <span class="message-author">裝逼</span>
-                        <span class="message-date">2023-10-10</span>
-                    </div>
-                    <div class="message-content">这周末有谁一起去图书馆复习？</div>
-                </li>
+                <!-- 留言将通过JavaScript动态加载 -->
             </ul>
         </section>
     </div>
@@ -429,42 +423,138 @@
                 document.getElementById(targetId).classList.add('active');
             });
         });
-        
-        // 留言提交功能
-        document.getElementById('submit-message').addEventListener('click', function() {
-            const author = document.getElementById('author').value.trim();
-            const message = document.getElementById('message').value.trim();
-            
-            if (!author || !message) {
-                alert('请填写姓名和留言内容！');
-                return;
+
+        // 留言板功能 - 使用localStorage保存数据
+        class MessageBoard {
+            constructor() {
+                this.storageKey = 'class2517_messages';
+                this.init();
             }
             
-            // 创建新的留言元素
-            const messageList = document.getElementById('message-list');
-            const newMessage = document.createElement('li');
-            newMessage.className = 'message-item';
+            // 初始化留言板
+            init() {
+                this.loadMessages();
+                this.setupEventListeners();
+            }
             
-            // 获取当前日期
-            const now = new Date();
-            const dateString = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+            // 从localStorage加载留言
+            loadMessages() {
+                const messages = this.getMessages();
+                this.renderMessages(messages);
+            }
             
-            newMessage.innerHTML = `
-                <div class="message-header">
-                    <span class="message-author">${author}</span>
-                    <span class="message-date">${dateString}</span>
-                </div>
-                <div class="message-content">${message}</div>
-            `;
+            // 获取所有留言
+            getMessages() {
+                const messagesJson = localStorage.getItem(this.storageKey);
+                return messagesJson ? JSON.parse(messagesJson) : [];
+            }
             
-            // 将新留言添加到列表顶部
-            messageList.insertBefore(newMessage, messageList.firstChild);
+            // 保存留言到localStorage
+            saveMessages(messages) {
+                localStorage.setItem(this.storageKey, JSON.stringify(messages));
+            }
             
-            // 清空表单
-            document.getElementById('author').value = '';
-            document.getElementById('message').value = '';
+            // 添加新留言
+            addMessage(author, content) {
+                const messages = this.getMessages();
+                const newMessage = {
+                    id: Date.now(), // 使用时间戳作为唯一ID
+                    author: author,
+                    content: content,
+                    date: new Date().toISOString()
+                };
+                
+                messages.unshift(newMessage); // 新留言添加到开头
+                this.saveMessages(messages);
+                this.renderMessages(messages);
+                
+                return newMessage;
+            }
             
-            alert('留言提交成功！');
+            // 渲染留言列表
+            renderMessages(messages) {
+                const messageList = document.getElementById('message-list');
+                
+                if (messages.length === 0) {
+                    messageList.innerHTML = '<li class="empty-message">暂无留言，快来留下第一条留言吧！</li>';
+                    return;
+                }
+                
+                messageList.innerHTML = messages.map(message => `
+                    <li class="message-item" data-id="${message.id}">
+                        <div class="message-header">
+                            <span class="message-author">${this.escapeHtml(message.author)}</span>
+                            <span class="message-date">${this.formatDate(message.date)}</span>
+                        </div>
+                        <div class="message-content">${this.escapeHtml(message.content)}</div>
+                    </li>
+                `).join('');
+            }
+            
+            // 格式化日期
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }
+            
+            // HTML转义，防止XSS攻击
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // 设置事件监听
+            setupEventListeners() {
+                document.getElementById('submit-message').addEventListener('click', () => {
+                    this.handleSubmit();
+                });
+                
+                // 支持按Enter键提交
+                document.getElementById('message').addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.handleSubmit();
+                    }
+                });
+            }
+            
+            // 处理留言提交
+            handleSubmit() {
+                const author = document.getElementById('author').value.trim();
+                const message = document.getElementById('message').value.trim();
+                
+                if (!author) {
+                    alert('请输入您的姓名！');
+                    document.getElementById('author').focus();
+                    return;
+                }
+                
+                if (!message) {
+                    alert('请输入留言内容！');
+                    document.getElementById('message').focus();
+                    return;
+                }
+                
+                // 添加留言
+                this.addMessage(author, message);
+                
+                // 清空表单
+                document.getElementById('message').value = '';
+                
+                // 显示成功消息
+                this.showSuccessMessage('留言提交成功！');
+            }
+            
+            // 显示成功消息
+            showSuccessMessage(text) {
+                // 可以在这里添加更美观的成功提示
+                alert(text);
+            }
+        }
+
+        // 初始化留言板
+        document.addEventListener('DOMContentLoaded', () => {
+            new MessageBoard();
         });
     </script>
 </body>
