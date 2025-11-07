@@ -285,7 +285,7 @@
         
         .message-date {
             color: #888;
-            font-size: 0.01rem;
+            font-size: 0.9rem;
         }
         
         .message-delete {
@@ -701,7 +701,7 @@
                         <button class="message-delete" onclick="messageBoard.deleteMessage(${message.id})">×</button>
                         <div class="message-header">
                             <span class="message-author">${this.escapeHtml(message.author)}</span>
-                            <span class="message-date">${this.formatDate(message.created_at)}</span>
+                            <!-- <span class="message-date">${this.formatDate(message.created_at)}</span> -->
                         </div>
                         <div class="message-content">${this.escapeHtml(message.content)}</div>
                     </li>
